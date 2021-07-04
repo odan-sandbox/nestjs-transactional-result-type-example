@@ -14,4 +14,12 @@ export class AppService {
     console.log(await this.usersRepository.find());
     return 'Hello World!';
   }
+
+  async createUser() {
+    await this.usersRepository.save(
+      this.usersRepository.create({
+        firstName: 'Tom',
+      }),
+    );
+  }
 }

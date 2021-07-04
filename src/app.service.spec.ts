@@ -1,0 +1,30 @@
+import { Test } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { getConnection, Repository } from 'typeorm';
+import { AppModule } from './app.module';
+import { AppService } from './app.service';
+import { User } from './entities/user.entity';
+
+describe('AppService', () => {
+  let service: AppService;
+  let usersRepository: Repository<User>;
+
+  beforeEach(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    service = moduleRef.get<AppService>(AppService);
+    usersRepository = moduleRef.get<Repository<User>>(getRepositoryToken(User));
+
+    await getConnection().synchronize(true);
+  });
+
+  describe('createUser', () => {
+    it('ok', async () => {
+      await expect(usersRepository.count()).resolves.toBe(0);
+      await service.createUser();
+      await expect(usersRepository.count()).resolves.toBe(1);
+    });
+  });
+});

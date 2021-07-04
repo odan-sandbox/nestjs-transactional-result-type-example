@@ -3,6 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User } from './entities/user.entity';
+import {
+  initializeTransactionalContext,
+  patchTypeORMRepositoryWithBaseRepository,
+} from 'typeorm-transactional-cls-hooked';
+
+initializeTransactionalContext();
+patchTypeORMRepositoryWithBaseRepository();
 
 @Module({
   imports: [
