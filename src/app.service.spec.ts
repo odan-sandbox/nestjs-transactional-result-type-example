@@ -26,5 +26,14 @@ describe('AppService', () => {
       await service.createUser();
       await expect(usersRepository.count()).resolves.toBe(1);
     });
+    it('revert', async () => {
+      jest.spyOn(service, 'hook').mockRejectedValue(new Error('hook error'));
+
+      await expect(usersRepository.count()).resolves.toBe(0);
+      await service.createUser().catch((error) => {
+        console.log({ error });
+      });
+      await expect(usersRepository.count()).resolves.toBe(0);
+    });
   });
 });

@@ -22,6 +22,7 @@ patchTypeORMRepositoryWithBaseRepository();
       database: 'postgres',
       entities: [User],
       synchronize: true,
+      keepConnectionAlive: true,
     }),
     TypeOrmModule.forFeature([User]),
   ],
