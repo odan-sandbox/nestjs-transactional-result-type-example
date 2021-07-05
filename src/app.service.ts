@@ -20,6 +20,10 @@ export class AppService {
     console.log('hook');
   }
 
+  async returnHook() {
+    return undefined;
+  }
+
   @Transactional()
   async createUser() {
     await this.usersRepository.save(
@@ -29,5 +33,7 @@ export class AppService {
     );
 
     await this.hook();
+
+    return this.returnHook();
   }
 }

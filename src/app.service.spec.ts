@@ -35,5 +35,17 @@ describe('AppService', () => {
       });
       await expect(usersRepository.count()).resolves.toBe(0);
     });
+
+    it('return error', async () => {
+      jest
+        .spyOn(service, 'returnHook')
+        .mockResolvedValue({ error: new Error('returnHook error') });
+
+      await expect(usersRepository.count()).resolves.toBe(0);
+      await service.createUser().catch((error) => {
+        console.log({ error });
+      });
+      await expect(usersRepository.count()).resolves.toBe(0);
+    });
   });
 });
