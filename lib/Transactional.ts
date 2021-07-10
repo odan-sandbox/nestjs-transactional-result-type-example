@@ -1,35 +1,9 @@
 import { wrapInTransaction } from 'typeorm-transactional-cls-hooked';
 import { Options } from 'typeorm-transactional-cls-hooked/dist/wrapInTransaction';
-
-type Func = (...args: unknown[]) => Promise<unknown>;
-
-function wrapMethod(fn: Func) {
-  async function wrapped(this: unknown, ...args) {
-    console.log('wrapMethod - this', this, fn, args);
-    const result = await fn.apply(this, args);
-
-    if (result && result.error) {
-      throw result.error;
-    }
-
-    return result;
-  }
-
-  return wrapped;
-}
-
-function unwrapMethod(fn: Func) {
-  async function unwrapped(this: unknown, ...args) {
-    console.log('unwrapMethod - this', this, fn, args);
-    const result = await fn.apply(this, args).catch((error) => {
-      return { error };
-    });
-
-    return result;
-  }
-
-  return unwrapped;
-}
+import {
+  wrapExceptionToResultType,
+  wrapResultTypeToException,
+} from './wrap-functions';
 
 export function Transactional(): MethodDecorator {
   return (
@@ -41,13 +15,14 @@ export function Transactional(): MethodDecorator {
 
     console.log({ target, methodName, descriptor });
 
-    const wrappedMethod = wrapMethod(originalMethod);
-
-    descriptor.value = unwrapMethod(
+    const wrappedMethod = wrapResultTypeToException(originalMethod);
+    const unwrappedMethod = wrapExceptionToResultType(
       wrapInTransaction(wrappedMethod, {
         name: methodName,
       }),
     );
+
+    descriptor.value = unwrappedMethod;
 
     Reflect.getMetadataKeys(originalMethod).forEach((previousMetadataKey) => {
       const previousMetadata = Reflect.getMetadata(
