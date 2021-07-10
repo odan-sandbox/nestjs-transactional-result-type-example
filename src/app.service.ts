@@ -28,11 +28,9 @@ export class AppService {
   async createUser(name: string) {
     await this.usersRepository.save(
       this.usersRepository.create({
-        firstName: 'poyo',
+        firstName: name,
       }),
     );
-
-    console.log('find', await this.usersRepository.find());
 
     await this.hook();
 

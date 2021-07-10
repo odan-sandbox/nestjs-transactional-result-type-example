@@ -36,15 +36,12 @@ describe('AppService', () => {
       await expect(usersRepository.count()).resolves.toBe(0);
     });
 
-    it.only('return error', async () => {
-      jest
-        .spyOn(service, 'returnHook')
-        .mockResolvedValue({ error: new Error('returnHook error') });
+    it('return error', async () => {
+      const error = new Error('returnHook error');
+      jest.spyOn(service, 'returnHook').mockResolvedValue({ error });
 
       await expect(usersRepository.count()).resolves.toBe(0);
-      await service.createUser('Tom').catch((error) => {
-        console.log({ error });
-      });
+      await expect(service.createUser('Tom')).resolves.toEqual({ error });
       await expect(usersRepository.count()).resolves.toBe(0);
       expect(service['returnHook']).toBeCalled();
     });

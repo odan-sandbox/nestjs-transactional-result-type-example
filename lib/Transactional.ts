@@ -18,6 +18,19 @@ function wrapMethod(fn: Func) {
   return wrapped;
 }
 
+function unwrapMethod(fn: Func) {
+  async function unwrapped(this: unknown, ...args) {
+    console.log('unwrapMethod - this', this, fn, args);
+    const result = await fn.apply(this, args).catch((error) => {
+      return { error };
+    });
+
+    return result;
+  }
+
+  return unwrapped;
+}
+
 export function Transactional(): MethodDecorator {
   return (
     target: any,
@@ -27,14 +40,14 @@ export function Transactional(): MethodDecorator {
     const originalMethod = descriptor.value;
 
     console.log({ target, methodName, descriptor });
-    console.log('this', this);
-    console.log(originalMethod);
 
     const wrappedMethod = wrapMethod(originalMethod);
 
-    descriptor.value = wrapInTransaction(wrappedMethod, {
-      name: methodName,
-    });
+    descriptor.value = unwrapMethod(
+      wrapInTransaction(wrappedMethod, {
+        name: methodName,
+      }),
+    );
 
     Reflect.getMetadataKeys(originalMethod).forEach((previousMetadataKey) => {
       const previousMetadata = Reflect.getMetadata(
