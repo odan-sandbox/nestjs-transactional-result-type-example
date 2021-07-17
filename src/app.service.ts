@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import { Transactional } from '../lib/Transactional';
 import { User } from './entities/user.entity';
+import { Propagation } from 'typeorm-transactional-cls-hooked';
 
 @Injectable()
 export class AppService {
@@ -24,6 +25,18 @@ export class AppService {
     return undefined;
   }
 
+  @Transactional({ propagation: Propagation.MANDATORY })
+  async createUserForMandatory(name: string) {
+    await this.usersRepository.save(
+      this.usersRepository.create({
+        firstName: name,
+      }),
+    );
+
+    await this.hook();
+
+    return this.returnHook();
+  }
   @Transactional()
   async createUser(name: string) {
     await this.usersRepository.save(

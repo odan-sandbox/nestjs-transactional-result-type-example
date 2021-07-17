@@ -5,7 +5,7 @@ import {
   wrapResultTypeToException,
 } from './wrap-functions';
 
-export function Transactional(): MethodDecorator {
+export function Transactional(options?: Options): MethodDecorator {
   return (
     target: any,
     methodName: string | symbol,
@@ -13,11 +13,10 @@ export function Transactional(): MethodDecorator {
   ) => {
     const originalMethod = descriptor.value;
 
-    console.log({ target, methodName, descriptor });
-
     const wrappedMethod = wrapResultTypeToException(originalMethod);
     const unwrappedMethod = wrapExceptionToResultType(
       wrapInTransaction(wrappedMethod, {
+        ...options,
         name: methodName,
       }),
     );

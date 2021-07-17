@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 import { AppService } from './app.service';
 import { User } from './entities/user.entity';
 
+import { execute } from '../lib/connection';
+
 describe('AppService', () => {
   let service: AppService;
   let usersRepository: Repository<User>;
@@ -44,6 +46,26 @@ describe('AppService', () => {
       await expect(service.createUser('Tom')).resolves.toEqual({ error });
       await expect(usersRepository.count()).resolves.toBe(0);
       expect(service['returnHook']).toBeCalled();
+    });
+  });
+
+  describe('createUserForMandatory', () => {
+    describe('outside transaction', () => {
+      it('should throw error', async () => {
+        await expect(service.createUserForMandatory('Tom')).resolves.toEqual({
+          error: expect.any(Error),
+        });
+      });
+    });
+
+    describe('inside transaction', () => {
+      it('ok', async () => {
+        await execute(async () => {
+          await expect(
+            service.createUserForMandatory('Tom'),
+          ).resolves.toBeUndefined();
+        });
+      });
     });
   });
 });
