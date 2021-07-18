@@ -4,6 +4,7 @@ import { getConnection, Repository } from 'typeorm';
 import { Transactional } from '../lib/Transactional';
 import { User } from './entities/user.entity';
 import { Propagation } from 'typeorm-transactional-cls-hooked';
+import { runInTransaction } from '../lib/connection';
 
 @Injectable()
 export class AppService {
@@ -39,6 +40,9 @@ export class AppService {
 
   @Transactional({ propagation: Propagation.MANDATORY })
   async createUserForMandatory(name: string) {
+    await runInTransaction(async (entityManager) => {
+      console.log({ entityManager });
+    });
     return this._createUser(name);
   }
   @Transactional()

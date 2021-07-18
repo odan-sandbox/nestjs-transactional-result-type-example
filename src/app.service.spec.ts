@@ -60,10 +60,12 @@ describe('AppService', () => {
 
     describe('inside transaction', () => {
       it('ok', async () => {
-        await execute(async () => {
-          await expect(
-            service.createUserForMandatory('Tom'),
-          ).resolves.toBeUndefined();
+        await getConnection().transaction(async (entityManager) => {
+          await execute(entityManager, async () => {
+            await expect(
+              service.createUserForMandatory('Tom'),
+            ).resolves.toBeUndefined();
+          });
         });
       });
     });
