@@ -25,8 +25,7 @@ export class AppService {
     return undefined;
   }
 
-  @Transactional({ propagation: Propagation.MANDATORY })
-  async createUserForMandatory(name: string) {
+  private async _createUser(name: string) {
     await this.usersRepository.save(
       this.usersRepository.create({
         firstName: name,
@@ -37,16 +36,13 @@ export class AppService {
 
     return this.returnHook();
   }
+
+  @Transactional({ propagation: Propagation.MANDATORY })
+  async createUserForMandatory(name: string) {
+    return this._createUser(name);
+  }
   @Transactional()
   async createUser(name: string) {
-    await this.usersRepository.save(
-      this.usersRepository.create({
-        firstName: name,
-      }),
-    );
-
-    await this.hook();
-
-    return this.returnHook();
+    return this._createUser(name);
   }
 }
