@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection, Repository } from 'typeorm';
+import { getConnection, getManager, Repository } from 'typeorm';
 import { Transactional } from '../lib/Transactional';
 import { User } from './entities/user.entity';
 import { Propagation } from 'typeorm-transactional-cls-hooked';
@@ -27,8 +27,9 @@ export class AppService {
   }
 
   private async _createUser(name: string) {
-    await this.usersRepository.save(
-      this.usersRepository.create({
+    const repository = getManager().getRepository<User>(User);
+    await repository.save(
+      repository.create({
         firstName: name,
       }),
     );
