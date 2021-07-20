@@ -22,8 +22,6 @@ export async function runInTransaction(
   callback: (entityManager: EntityManager) => Promise<unknown>,
 ) {
   const context = getNamespace(NAMESPACE_NAME);
-  await context.runAndReturn(async () => {
-    const entityManager = getEntityManagerForConnection('default', context);
-    await callback(entityManager);
-  });
+  const entityManager = getEntityManagerForConnection('default', context);
+  await callback(entityManager);
 }
