@@ -13,13 +13,17 @@ export function Transactional(options?: Options): MethodDecorator {
   ) => {
     const originalMethod = descriptor.value;
 
+    // result 型の関数 => 例外を throw する関数に変換
     const wrappedMethod = wrapResultTypeToException(originalMethod);
-    const unwrappedMethod = wrapExceptionToResultType(
-      wrapInTransaction(wrappedMethod, {
-        ...options,
-        name: methodName,
-      }),
-    );
+
+    // 変換した例外を throw する関数をトランザクションを管理する内部関数に渡す
+    const inTransactionMethod = wrapInTransaction(wrappedMethod, {
+      ...options,
+      name: methodName,
+    });
+
+    // 例外を throw する関数 => result 型の関数に変換
+    const unwrappedMethod = wrapExceptionToResultType(inTransactionMethod);
 
     descriptor.value = unwrappedMethod;
 
